@@ -1,11 +1,19 @@
+import json
+import re
+
 class Lemmatizer():
+
     punkt = ',…—\–()[].!?:﻿;\'‘’"„“«»*-'
     mutations = {'bh': 'b', 'mb': 'b', 'ch': 'c', 'gc': 'c', 'gh': 'g', 'ng': 'g', 'dh': 'd', 'nd': 'd', 'fh': 'f',
                  'ḟ': 'f', 'ḟh': 'f', 'bhf': 'f', 'mm': 'm', 'll': 'l', 'nn': 'n', 'ph': 'p', 'bp': 'p', 'rr': 'r',
                  'sh': 's', 'ṡ': 's', 'th': 't', 'dt': 't', 'he': 'e', 'hé': 'é', 'ha': 'a', 'há': 'á', 'hi': 'i',
-                 'hí': 'í', 'ho': 'o', 'hó': 'ó', 'hu': 'u', 'hú': 'ú', 'n-': '', 'h-': '', 'ss': 's', 'ts': 's'}
-    with open("forms_new.json", encoding='utf-8') as f:
+                 'hí': 'í', 'ho': 'o', 'hó': 'ó', 'hu': 'u', 'hú': 'ú', 'n-': '', 'h-': '', 'ss': 's', 'ts': 's',
+                 'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
+                 'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': ''}
+
+    with open("forms_new.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1:
         lemmadict = json.loads(f.read())
+        model = json.loads(f1.read())
 
     def __init__(self, text):
         self.text, self.words = self.preprocess(text)
@@ -25,16 +33,17 @@ class Lemmatizer():
         self.text = " ".join(self.words)
         return self.text, self.words
 
-    def demutate(self, word):
+    @staticmethod
+    def demutate(word):
         """
         Checks if the word is lenited, nasalized etc. and restores  its original form
         :param word: str
         :return: str
         """
-        if word[:2] in self.mutations:
-            word = self.mutations[word[:2]] + word[2:]
-        elif word[0] in self.mutations:
-            word = self.mutations[word[0]] + word[1:]
+        if word[:2] in Lemmatizer.mutations:
+            word = Lemmatizer.mutations[word[:2]] + word[2:]
+        elif word[0] in Lemmatizer.mutations:
+            word = Lemmatizer.mutations[word[0]] + word[1:]
         return word
 
     def lemmatize(self, word):
@@ -89,50 +98,80 @@ class Lemmatizer():
         """
         :return: a set of non-lemmatizzed words
         """
-        self.unlemmatized = set()
+        self.unlemmatized = []
         for key in self.counts.keys():
             if key[-1] is None:
-                self.unlemmatized.add(key[0])
+                self.unlemmatized.append(key[0])
         return self.unlemmatized
 
     def metrics(self):
         """
-        :return: accuracy (a float < 1)
+        :return: precision score
         """
         self.cntLemmatized = 0
         for key in self.counts.keys():
             if key[-1] is not None:
                 self.cntLemmatized += self.counts[key]
         try:
-            self.accuracy = self.cntLemmatized / len(self.words)
+            self.recall = self.cntLemmatized / len(self.words)
         except ZeroDivisionError:
-            self.accuracy = 0
-        return self.accuracy
+            self.recall = 0
+        return self.recall
+
+    def update_dict(self, path):
+        """
+        Adds words from a file ("lemma\tform1,form2...\n") to the dictionary
+        :param path: path to txt/csv file with words to add
+        """
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                res = re.search('(.+)\t(.+)\n', line)
+                if res:
+                    lemma = res.group(1)
+                    forms = set(res.group(2).lower().split(','))
+                    for form in forms:
+                        self.lemmadict[form] = (lemma,)
+        with open("forms_new.json", "w", encoding = "utf-8") as f1:
+            json.dump(self.lemmadict, f1, sort_keys = True, ensure_ascii = False)
 
 
-def process_files(path):
-    """
-    Lemmatizes texts from all the files in a given directory and puts lemmatized texts in a new folder.
-    Counts average accuracy
-    :param path: path to files
-    :return: average accuracy (a float < 1)
-    """
-    totalAccuracy = 0
-    os.makedirs(path + "\\lemmatized", exist_ok=True)
-    files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
-    for file in files:
-        with open(os.path.join(path, file), 'r', encoding='utf-8') as infile:
-            lem = Lemmatizer(infile.read())
-            totalAccuracy += lem.accuracy
-        with open(path + '\\lemmatized\\lem_' + file, 'w', encoding='utf-8') as outfile:
-            outfile.write(lem.lemmaText)
-    totalAccuracy = totalAccuracy / len(files)
-    return totalAccuracy
+class Edits():
+    alphabet = 'abcdefghijklmnopqrstuvwxyzáóúíéṡḟōäïāūæēṅǽüöβī'
+    vowels = 'aeiouvyáóúíéōäāïūæēǽüöī'
+    consonants = 'bcdfghjklmnpqrstvwxzṡḟṅβ'
 
+    def __init__(self, unlemmatized):
+        self.unlemma = set(unlemmatized)
+        self.proposed = self.levenshtein_unknown()
 
-if __name__ == '__main__':
-    import os
-    import sys
-    import json
-    print(process_files(sys.argv[1]))
+    def levenshtein_unknown(self):
+        self.proposed = []
+        for word in self.unlemma:
+            closest = self.correct(Lemmatizer.demutate(word))
+            if closest is not None:
+                entry = Lemmatizer.demutate(word) + "\t" + closest + "\t" + str(Lemmatizer.lemmadict[closest])
+                self.proposed.append(entry)
+        return self.proposed
 
+    def edits1(self, word):
+       splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+       deletes = [a + b[1:] for a, b in splits if b]
+       transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
+       replaces = [a + c + b[1:] for a, b in splits for c in self.alphabet if b]
+       inserts = [a + c + b for a, b in splits for c in self.alphabet]
+       return set(deletes + transposes + replaces + inserts)
+
+    def known_edits2(self, word):
+        return set(e2 for e1 in self.edits1(word) for e2 in self.edits1(e1) if e2 in Lemmatizer.model.keys())
+
+    def known(self, words): return set(w for w in words if w in Lemmatizer.model.keys())
+
+    def correct(self, word):
+        candidates = self.known(self.edits1(word)) or self.known_edits2(word)
+        candidates = [c for c in candidates if c[0] in self.vowels and word[0] in self.vowels \
+                      or c[0] in self.consonants and word[0] in self.consonants]
+        if len(candidates) != 0:
+            corr = max(candidates, key = Lemmatizer.model.get)
+        else:
+            corr = None
+        return corr
