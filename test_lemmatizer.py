@@ -1,13 +1,15 @@
 from lemmatizer import *
 from pprint import pprint as pp
 import os
+import sys
 
 def process_files(path):
     """
     Lemmatizes texts from all the files in a given directory and puts lemmatized texts in a new folder.
-    Counts average accuracy
+    Writes proposed lemmas for unknown words into a file.
+	Counts average recall. 
     :param path: path to files
-    :return: average accuracy (a float < 1)
+    :return: average recall
     """
     totalRecall = 0
     totalUnlemmatized = []
@@ -35,5 +37,5 @@ def process_files(path):
 
 
 if __name__ == '__main__':
-    totalRecall, proposed = process_files("C:\\Users\\ahten_000\\Dropbox\\Библиотека\\Вышка\\OldIrish\\texts\\processed")
+    totalRecall, proposed = process_files(sys.argv[1])
     pp(sorted(proposed)[:25])
