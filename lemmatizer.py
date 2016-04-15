@@ -11,7 +11,7 @@ class Lemmatizer():
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': ''}
 
-    with open("forms_new.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1:
+    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1:
         lemmadict = json.loads(f.read())
         model = json.loads(f1.read())
 
@@ -20,6 +20,8 @@ class Lemmatizer():
         self.lemmaText, self.counts = self.make_lemmatized_text()
         self.accuracy = self.metrics()
         self.unlemmatized = self.show_unlemmatized()
+        self.nr_tokens = len(self.words)
+        self.nr_unique = len(set(self.words))
 
     def preprocess(self, text):
         """
@@ -104,6 +106,16 @@ class Lemmatizer():
                 self.unlemmatized.append(key[0])
         return self.unlemmatized
 
+    @staticmethod
+    def count_unlemmatized(unlemmatized):
+        unlemmatizedCounts = {}
+        for word in unlemmatized:
+            if word in unlemmatizedCounts.keys():
+                unlemmatizedCounts[word] += 1
+            else:
+                unlemmatizedCounts[word] = 1
+        return unlemmatizedCounts
+
     def metrics(self):
         """
         :return: precision score
@@ -130,23 +142,33 @@ class Lemmatizer():
                     lemma = res.group(1)
                     forms = set(res.group(2).lower().split(','))
                     for form in forms:
-                        self.lemmadict[form] = (lemma,)
+                        if form in self.lemmadict.keys():
+                            self.lemmadict[form] += (lemma,)
+                        else:
+                            self.lemmadict[form] = (lemma,)
         with open("forms_new.json", "w", encoding = "utf-8") as f1:
             json.dump(self.lemmadict, f1, sort_keys = True, ensure_ascii = False)
 
 
 class Edits():
-    alphabet = 'abcdefghijklmnopqrstuvwxyzáóúíéṡḟōäïāūæēṅǽüöβī'
-    vowels = 'aeiouvyáóúíéōäāïūæēǽüöī'
+    alphabet = 'abcdefghijklmnopqrstuvwxyzáóúíéṡḟōäïāūæēṅǽüöβīḯ'
+    vowels = 'aeiouvyáóúíéōäāïūæēǽüöīḯ'
     consonants = 'bcdfghjklmnpqrstvwxzṡḟṅβ'
 
-    def __init__(self, unlemmatized):
-        self.unlemma = set(unlemmatized)
+    def __init__(self, unlemmatized, threshold = 0):
+        self.threshold = threshold
+        self.unlemmatized = unlemmatized
+        self.filteredUnlemmatized = self.filter_unlemmatized()
         self.proposed = self.levenshtein_unknown()
+
+    def filter_unlemmatized(self):
+        self.filteredUnlemmatized = []
+        [self.filteredUnlemmatized.append(key) for key, value in self.unlemmatized.items() if value > self.threshold]
+        return self.filteredUnlemmatized
 
     def levenshtein_unknown(self):
         self.proposed = []
-        for word in self.unlemma:
+        for word in self.filteredUnlemmatized:
             closest = self.correct(Lemmatizer.demutate(word))
             if closest is not None:
                 entry = Lemmatizer.demutate(word) + "\t" + closest + "\t" + str(Lemmatizer.lemmadict[closest])
@@ -169,7 +191,7 @@ class Edits():
     def correct(self, word):
         candidates = self.known(self.edits1(word)) or self.known_edits2(word)
         candidates = [c for c in candidates if c[0] in self.vowels and word[0] in self.vowels \
-                      or c[0] in self.consonants and word[0] in self.consonants]
+                      or word[0] in self.consonants and word[0] == c[0]]
         if len(candidates) != 0:
             corr = max(candidates, key = Lemmatizer.model.get)
         else:
