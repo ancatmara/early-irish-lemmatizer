@@ -171,7 +171,7 @@ class Edits():
         for word in self.filteredUnlemmatized:
             closest = self.correct(Lemmatizer.demutate(word))
             if closest is not None:
-                entry = Lemmatizer.demutate(word) + "\t" + closest + "\t" + str(Lemmatizer.lemmadict[closest])
+                entry = (Lemmatizer.demutate(word), closest, (Lemmatizer.lemmadict[closest]))
                 self.proposed.append(entry)
         return self.proposed
 

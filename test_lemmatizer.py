@@ -1,14 +1,15 @@
 from lemmatizer import *
 from collections import OrderedDict
 from pprint import pprint as pp
-import os
+import os, sys
 
 def process_files(path):
     """
     Lemmatizes texts from all the files in a given directory and puts lemmatized texts in a new folder.
-    Counts average accuracy
+    Writes proposed lemmas for unknown words into a file.
+    Counts average recall.
     :param path: path to files
-    :return: average accuracy (a float < 1)
+    :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
     """
     totalRecall = 0
     totalUnlemmatized = []
@@ -22,7 +23,7 @@ def process_files(path):
             print("Recall in %s: %s" % (file, lem.recall))
         with open(path + '\\lemmatized\\lem_' + file, 'w', encoding='utf-8') as outfile:
             outfile.write(lem.lemmaText)
-    with open('test_unlemmatized.txt', 'w', encoding='utf-8') as f:
+    with open('unlemmatized.txt', 'w', encoding='utf-8') as f:
         for word in sorted(totalUnlemmatized):
             f.write(word + '\n')
     totalRecall = totalRecall / len(files)
@@ -31,12 +32,12 @@ def process_files(path):
     unlemmatizedCounts = Lemmatizer.count_unlemmatized(totalUnlemmatized)
     edits = Edits(unlemmatizedCounts)
     totalProposed = edits.proposed
-    with open('test_proposed_lemmas.txt', 'w', encoding= 'utf-8') as f1:
+    with open('proposed_lemmas.txt', 'w', encoding= 'utf-8') as f1:
         for entry in sorted(totalProposed):
-            f1.write(entry + '\n')
-    return totalRecall, totalProposed
+            f1.write('%s\t%s\t%s\n' % (entry[0], entry[1], entry[2]))
+    return totalProposed
 
 
 if __name__ == '__main__':
-    totalRecall, proposed = process_files("C:\\Users\\ahten_000\\Dropbox\\Библиотека\\Вышка\\OldIrish\\texts\\test")
+    proposed = process_files(sys.argv[1])
     # pp(sorted(proposed)[:25])
