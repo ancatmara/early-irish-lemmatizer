@@ -1,0 +1,28 @@
+co	cos(s)in,cos(s)a,cosna,cosin,cossin,cossa,cosa,gusin,gusan,cosno,gusna,cuccum,cucum,cugum,chugom,chucumm,chugam,cucut,cuccut,chucud,chuccad,chugad,chút,cuci,cucai,cucci,cuccai,cuici,cuigi,chuci,chucai,chuice,chuici,chuga,cuicce,cucae,chucae,cucai,cuci,cuici,chuice,chuigthe,cucunn,cuccainn,cugainn,cugainde,chucunni,chucund,chucaind,chugainne,cucuib,cuccaib,cuccuib,cucaib,cugaib,cuccu,cucu,chuca,cugtha,chucu,chuca,com,cot,gut,coa,gó,go,cosa,cos,cus,cosa,cusa,cos,cus,gus,gusa,cosar,gar,góar,cu,ca,go,cosind,cossin,cusan,cusin,cosnaib,gusna,com,cut,cot,cona,cua,co,co,conar,cono,conu,cona,condaib,cu,ca,go,cosind,cossin,cusan,cusin,cosnaib,gusna,com,cut,cot,cona,cua,co,co,conar,cono,conu,cona,condaib,có,no co,na co,nó co
+con	con
+for	for,far,bar,fuir,AR,FOR,AR,forsa,fora,fara,forsin[d],forsa,forsna,farsin,barsin,barsan,forin[d],forna,fornaib,forsn,forin,forna,formu,form,fort,fort,bard,fora,forar,forar,f,forar,f,form,fórm,formsa,fórmsa,forom,foromm,forumsa,foromsa,forum,ḟorum,orum,orum,orumsa,formm,ormm,fort,ort,fortsu,foir,fair,ḟair,foirsom,foirsem,fairseom,fairsem,foir,for,foir,fair,ḟair,ḟairside,forrae,furri,ḟurthi,uirre,fuiri,furi,fuiri,furri,fuirri,fora,forra,fuirri,fuirre,uirre,fornn,fornd,ornn,fornni,forunni,forni,forund,forond,foirn,foirnn,foirnd,oirn,oirnd,foraindi,foraind,forainde,oraind,orainne,forn,forinn,orainde,foirib,forib,fuirib,furib,fuiribsi,furibsi,foraib,foraibh,for aibse,foirb,foirbsi,oraib,forru,forrusom,forro,forra,orru,forthu,fortho,forta,forib,foraib,forib,foraib,forroib,forru,forthu,foraib,for,ar,fair,air,AR,FOR,orat,orad,airiut,erut,AR,AR,far,bar,uar,BUR,BHUR,for,OL,AR,forsi,fordat,ar
+do	do,du,dond,donaib,dunaib,donab,dona,dondí,donaibhí,dunaibhí,donahí,dom,domsa,damsa,duit,dait,deit,det,dit,duid,daid,duitt,duitsiu,deitsiu,detsiu,détso,detsi,dutsi,dó,do,dóu,dou,dáu,dossom,dosom,dí,di,díi,disi,dúnn,dunn,duún,dúun,dún,dun,duin,dú(i)nn,dúnni,dunni,dúni,dúinniu,dúnai,dúib,duib,duíb,dib,dib,daoibh,dúibsi,dúbsi,dóib,doib,duaib,dáib,doaib,doibsom,dom,dum,dot,dut,dot,dod,do,do,dia,doa,diar,dear,dar,dia n,doa n,dua,dá,dia n,da,dona,donach,do,to,to,tho,thu,da,di,do,du,Dudubtae,Dulassi
+at	at
+as	asa,assa,as,ais,asa,asa
+ad	ad
+ní	ní,níi,neich,neuch,neoch,neo,niu,neo,niu,ní,níos,níosa,ní,neich,neith,ní,neche,neiche,neithe,neithinna,nídh,ní,neith,neithe,aen,én,ní,nía
+ro	ro,ru,ra,ri,re,níro,náro,coro,nír,nár,cor,ro,corob,corot,corom,coro,corop
+a	a,á,e,an,i,ind,ina,na,as,assin,asind,as,as,as,as,as,ast,assa,asa,asar,as,assa,asa,asum,essiut,ass,as,es,essi,esse,eissi,esti,eisti,este,aiste,essib,eissib,esib,estib,eistib,asta,asa
+aith	aith
+dan	diand,dianad,dianid,dian,dan,dán
+der	der,deir,ndear,der bf,derb ḟ,Dera,Dheruibh,Dher,Dhera,Derbha,Derbhuibh,Dhearbh,Dherbha,Derbhfáil,Dearbhail,Deirbi,derb
+derb	derb,deirb
+dom	dom,dam,daim,doim,domo,domhu,daim
+dot	dot
+don	don
+e	edad,eadha,ē,æ,ǽ,ĕ,e,é,ee,ia,ea,ía
+é	é,hé,ishé,is hé,hǽ,isé,hǽ,hé,asné,ishe,issé,isé,é,hé,é,hésom,hesom,hǽsium,ésium,esium,eisium,esiomh,eisim,esim,éseom,eseom,eiseom,esen,ésen,eisen,eisean,eision,essium,eissium,eissiumh,esseom,essem,essim,eissim,eissin,hisseom,heside,he side,éside,eside,éisidhe,eisidhe,eiside,esede,eisidhi,esiden,esidein,eisidhein,esein,éisein,eiséin,eisideic,eiseic,esec,esside,hessidhi,eisside,eissidi,eissideic,eisseic,eissein,es(s)ide,bé,cebe,gibe,cidbe,eside,esium,(h) é,éseom,esium,eissium,hǽ,té
+fo	fo,fó,fu,fa,ba,bá,ba,fá,faoí,faoi,fa,ba,fa,fa,faoi,fua,foa,fo,fó,fá,fo,fó,fá,fon(d),fón,fónd,foind,fóa,fun,fan,fona,fosnaib,foum,fóm,fúm,fúm,fóm,fout,fūd,fút,d,fót,d,fád,fo,foa,fua,foí,fóe,foei,fáe,fou,foú,fó,foa,fáe,foe,fai,fua,fáe,faoi,fa,faoi,faoi,foí,fúe,fóe,foithi,fóthi,foithe,fuithe,fúithe,fáoithi,fúithe,fóithe,faoithe,fúinn,fōin,fōind,fúnn,fúinn,fóinn,faoinn,fuibhsi,faoibh,fúibh,fóibh,faoibh,fóthu,fúthu,fūthu,fōthu,fōtha,fūtha,fútha,fóthib,fōthib,fóthib,foíthib,foithib,fūthaibh,fuithibh,uí,fúthaibh,fúthuibh,faoithibh,fóm,fom,bám,fám,fot,fót,fád,foa,fóa,fána,fo,fo,fóar,fo,fánar,fo,foa,fona,fana,fána,foum,Fo
+id	idh,id,id,id,edha,eda,idi,hidi,ige,hidhe,idai,nidi,idhe,hidhe,idheadh,negh,nedh,id,idh
+in	int,nt,(s)int,int,na,inna,inna,in,n,ind,in,ind,int,ind,int,int,ind,s,ss,ocin(d),immin,immun,indá,dundaib,b,b,inna,na,na,in,in,na,ind,in,int,inna,na,a n,a,a,(s)naib,(s)na,d,na,inna,in,ind,an,an t,in,int,ind,ind,a n,in,mbúaid,a,in,ind,in,in,na,inna,inda,ind,indá,inna,na,inna,na,na,inna,na,ina,inna,na,in,n,in,in,in,in,in,in,in,isin,isin,ind,na,in,in,na,na,na,in,in,na,na,na,an,na,ind,im,in,in,in,in,an,in,in,in,in,in,in,in,imb,imp,in
+ind	ind,nind,ind,ind,ind,hinn,ind,fhionn,ind,enna,nenna,hinna,eand,indaib,hinnaib,eannaib,nindib,finnuib,nind,inn,nInd,nInn
+imb	imb,imm,imm,im,im,im,himm,imm,um,am,ma,mo,uime,um,fa,imm,imma,im,im,um,im,immin,immin,immun,immon,imon,amun,mun,man,mon,imma n,imma,imma,imman,imna,immum,imam,imum,imumm,umam,umum,ummumm,immut,imut,umat,umaitsiu,iomut,umad,mud,immbi,imbi,immi,imbe,immbe,imme,ime,uime,uimme,imi,uime,impe,impi,immpe,uimpe,uimpi,impea,immunn,immund,immaind,imaind,iomuinne,immib,imuib,umaibh,impu,immpu,umpu,umpa,iompa,impaib,imum,mam,im du,im do,immut,imod,mat,imma,imma,immo,ima,uma,má,immo,immó,immua n,imm
+mí	mí,mís,mís,mís,mís,mí,mí,mí,mís,misa,mís,mí,mís,mí,mí,mí,mhís,mhí,aonmhís,mísa,mí,mís,mis
+no	nu,no
+prím	prím,phrím,prim
+to	to
