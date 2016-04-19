@@ -11,8 +11,8 @@ class Lemmatizer():
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': ''}
 
-    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
-        open("lemma_probs.json", encoding="utf-8") as f2:
+    with open(".\\dicts\\forms.json", encoding='utf-8') as f, open(".\\dicts\\word_probs.json", encoding="utf-8") as f1,\
+        open(".\\dicts\\lemma_probs.json", encoding="utf-8") as f2:
         lemmadict = json.loads(f.read())
         wordModel = json.loads(f1.read())
         lemmaModel = json.loads(f2.read())
@@ -91,17 +91,6 @@ class Lemmatizer():
                     self.lemmaText += bestLemma + ' '
         return self.lemmaText, self.unlemmatized, self.cnt
 
-
-    @staticmethod
-    def count_unlemmatized(unlemmatized):
-        unlemmatizedCounts = {}
-        for word in unlemmatized:
-            if word in unlemmatizedCounts.keys():
-                unlemmatizedCounts[word] += 1
-            else:
-                unlemmatizedCounts[word] = 1
-        return unlemmatizedCounts
-
     def metrics(self):
         """
         :return: recall score
@@ -128,7 +117,7 @@ class Lemmatizer():
                             self.lemmadict[form] += (lemma,)
                         else:
                             self.lemmadict[form] = (lemma,)
-        with open("forms.json", "w", encoding = "utf-8") as f1:
+        with open(".\\dicts\\forms.json", "w", encoding = "utf-8") as f1:
             json.dump(self.lemmadict, f1, sort_keys = True, ensure_ascii = False)
 
 

@@ -1,5 +1,5 @@
 from lemmatizer import *
-from collections import OrderedDict
+from collections import Counter
 from pprint import pprint as pp
 import os, sys
 
@@ -26,14 +26,14 @@ def process_files(path):
     totalRecall = totalRecall / len(files)
     print(totalRecall)
 
-    unlemmatizedCounts = Lemmatizer.count_unlemmatized(totalUnlemmatized)
+    unlemmatizedCounts = Counter(totalUnlemmatized)
     edits = Edits(unlemmatizedCounts, 1)
     totalProposed = edits.proposed
     with open('proposed_lemmas.txt', 'w', encoding= 'utf-8') as f1, open('unlemmatized.txt', 'w', encoding='utf-8') as f2:
         for entry in sorted(totalProposed):
-            f1.write('%s\t%s\t%s\n' % (entry[0], entry[1], entry[2]))
+            f1.write('%s    %s    %s\n' % (entry[0], entry[1], entry[2]))
         for word in sorted(unlemmatizedCounts, key=unlemmatizedCounts.get):
-            f2.write('%s\t%s\n' % (word, unlemmatizedCounts[word]))
+            f2.write('%s    %s\n' % (word, unlemmatizedCounts[word]))
     return totalProposed
 
 
