@@ -23,18 +23,17 @@ def process_files(path):
             print("Recall in %s: %s" % (file, lem.recall))
         with open(path + '\\lemmatized\\lem_' + file, 'w', encoding='utf-8') as outfile:
             outfile.write(lem.lemmaText)
-    with open('unlemmatized.txt', 'w', encoding='utf-8') as f:
-        for word in sorted(totalUnlemmatized):
-            f.write(word + '\n')
     totalRecall = totalRecall / len(files)
     print(totalRecall)
 
     unlemmatizedCounts = Lemmatizer.count_unlemmatized(totalUnlemmatized)
-    edits = Edits(unlemmatizedCounts)
+    edits = Edits(unlemmatizedCounts, 1)
     totalProposed = edits.proposed
-    with open('proposed_lemmas.txt', 'w', encoding= 'utf-8') as f1:
+    with open('proposed_lemmas.txt', 'w', encoding= 'utf-8') as f1, open('unlemmatized.txt', 'w', encoding='utf-8') as f2:
         for entry in sorted(totalProposed):
             f1.write('%s\t%s\t%s\n' % (entry[0], entry[1], entry[2]))
+        for word in sorted(unlemmatizedCounts, key=unlemmatizedCounts.get):
+            f2.write('%s\t%s\n' % (word, unlemmatizedCounts[word]))
     return totalProposed
 
 

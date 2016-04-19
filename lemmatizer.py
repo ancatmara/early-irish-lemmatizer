@@ -11,15 +11,16 @@ class Lemmatizer():
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': ''}
 
-    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1:
+    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
+        open("lemma_probs.json", encoding="utf-8") as f2:
         lemmadict = json.loads(f.read())
-        model = json.loads(f1.read())
+        wordModel = json.loads(f1.read())
+        lemmaModel = json.loads(f2.read())
 
     def __init__(self, text):
         self.text, self.words = self.preprocess(text)
-        self.lemmaText, self.counts = self.make_lemmatized_text()
+        self.lemmaText, self.unlemmatized, self.cnt = self.make_lemmatized_text()
         self.accuracy = self.metrics()
-        self.unlemmatized = self.show_unlemmatized()
         self.nr_tokens = len(self.words)
         self.nr_unique = len(set(self.words))
 
@@ -42,10 +43,11 @@ class Lemmatizer():
         :param word: str
         :return: str
         """
-        if word[:2] in Lemmatizer.mutations:
-            word = Lemmatizer.mutations[word[:2]] + word[2:]
-        elif word[0] in Lemmatizer.mutations:
-            word = Lemmatizer.mutations[word[0]] + word[1:]
+        if len(word) != 0:
+            if word[:2] in Lemmatizer.mutations:
+                word = Lemmatizer.mutations[word[:2]] + word[2:]
+            elif word[0] in Lemmatizer.mutations:
+                word = Lemmatizer.mutations[word[0]] + word[1:]
         return word
 
     def lemmatize(self, word):
@@ -65,18 +67,6 @@ class Lemmatizer():
             res = (word, None)
         return res
 
-    def count(self, res):
-        """
-        Makes a word frequency dict
-        :param res: a (word, lemma) tuple
-        :return: dict
-        """
-        if res in self.counts:
-            self.counts[res] += 1
-        else:
-            self.counts[res] = 1
-        return self.counts
-
     def make_lemmatized_text(self):
         """
         Makes a lemmatized text and counts (word, lemma) frequency
@@ -84,27 +74,23 @@ class Lemmatizer():
                 {(word, lemma) : count}
         """
         self.lemmaText = ''
-        self.counts = {}
+        self.unlemmatized = []
+        self.cnt = 0
         for word in self.words:
             res = self.lemmatize(word)
-            if type(res[-1]) == str:
-                self.lemmaText += res[-1] + ' '
-            elif type(res[-1]) == tuple:
-                self.lemmaText += res[-1][0] + ' '
-            else:
+            if res[-1] is None:
                 self.lemmaText += res[0] + ' '
-            self.counts = self.count(res)
-        return self.lemmaText, self.counts
+                self.unlemmatized.append(res[0])
+            else:
+                self.cnt += 1
+                if len(res[-1]) == 1:
+                    self.lemmaText += res[-1][0] + ' '
+                elif len(res[-1]) > 1:
+                    candidates = [element for element in res[-1]]
+                    bestLemma = max(candidates, key = Lemmatizer.lemmaModel.get)
+                    self.lemmaText += bestLemma + ' '
+        return self.lemmaText, self.unlemmatized, self.cnt
 
-    def show_unlemmatized(self):
-        """
-        :return: a set of non-lemmatizzed words
-        """
-        self.unlemmatized = []
-        for key in self.counts.keys():
-            if key[-1] is None:
-                self.unlemmatized.append(key[0])
-        return self.unlemmatized
 
     @staticmethod
     def count_unlemmatized(unlemmatized):
@@ -118,14 +104,10 @@ class Lemmatizer():
 
     def metrics(self):
         """
-        :return: precision score
+        :return: recall score
         """
-        self.cntLemmatized = 0
-        for key in self.counts.keys():
-            if key[-1] is not None:
-                self.cntLemmatized += self.counts[key]
         try:
-            self.recall = self.cntLemmatized / len(self.words)
+            self.recall = self.cnt / len(self.words)
         except ZeroDivisionError:
             self.recall = 0
         return self.recall
@@ -146,7 +128,7 @@ class Lemmatizer():
                             self.lemmadict[form] += (lemma,)
                         else:
                             self.lemmadict[form] = (lemma,)
-        with open("forms_new.json", "w", encoding = "utf-8") as f1:
+        with open("forms.json", "w", encoding = "utf-8") as f1:
             json.dump(self.lemmadict, f1, sort_keys = True, ensure_ascii = False)
 
 
@@ -184,16 +166,16 @@ class Edits():
        return set(deletes + transposes + replaces + inserts)
 
     def known_edits2(self, word):
-        return set(e2 for e1 in self.edits1(word) for e2 in self.edits1(e1) if e2 in Lemmatizer.model.keys())
+        return set(e2 for e1 in self.edits1(word) for e2 in self.edits1(e1) if e2 in Lemmatizer.wordModel.keys())
 
-    def known(self, words): return set(w for w in words if w in Lemmatizer.model.keys())
+    def known(self, words): return set(w for w in words if w in Lemmatizer.wordModel.keys())
 
     def correct(self, word):
         candidates = self.known(self.edits1(word)) or self.known_edits2(word)
         candidates = [c for c in candidates if c[0] in self.vowels and word[0] in self.vowels \
                       or word[0] in self.consonants and word[0] == c[0]]
         if len(candidates) != 0:
-            corr = max(candidates, key = Lemmatizer.model.get)
+            corr = max(candidates, key = Lemmatizer.wordModel.get)
         else:
             corr = None
         return corr
