@@ -1,5 +1,7 @@
 import json
 import re
+import os
+from collections import Counter
 
 class Lemmatizer():
 
@@ -9,10 +11,11 @@ class Lemmatizer():
                  'sh': 's', 'ṡ': 's', 'th': 't', 'dt': 't', 'he': 'e', 'hé': 'é', 'ha': 'a', 'há': 'á', 'hi': 'i',
                  'hí': 'í', 'ho': 'o', 'hó': 'ó', 'hu': 'u', 'hú': 'ú', 'n-': '', 'h-': '', 'ss': 's', 'ts': 's',
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
-                 'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': ''}
+                 'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': '', 'l-': '', 'mh': 'm', 'r-': '',
+                 's-': ''}
 
-    with open(".\\dicts\\forms.json", encoding='utf-8') as f, open(".\\dicts\\word_probs.json", encoding="utf-8") as f1,\
-        open(".\\dicts\\lemma_probs.json", encoding="utf-8") as f2:
+    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
+        open("lemma_probs.json", encoding="utf-8") as f2:
         lemmadict = json.loads(f.read())
         wordModel = json.loads(f1.read())
         lemmaModel = json.loads(f2.read())
@@ -87,8 +90,11 @@ class Lemmatizer():
                     self.lemmaText += res[-1][0] + ' '
                 elif len(res[-1]) > 1:
                     candidates = [element for element in res[-1]]
-                    bestLemma = max(candidates, key = Lemmatizer.lemmaModel.get)
-                    self.lemmaText += bestLemma + ' '
+                    try:
+                        bestLemma = max(candidates, key = Lemmatizer.lemmaModel.get)
+                        self.lemmaText += bestLemma + ' '
+                    except TypeError:
+                        self.lemmaText += word + ' '
         return self.lemmaText, self.unlemmatized, self.cnt
 
     def metrics(self):
@@ -101,24 +107,82 @@ class Lemmatizer():
             self.recall = 0
         return self.recall
 
-    def update_dict(self, path):
+    @staticmethod
+    def update_dict(path_to_dict, path_to_update):
         """
         Adds words from a file ("lemma\tform1,form2...\n") to the dictionary
-        :param path: path to txt/csv file with words to add
+        :param path_to_update: path to txt/csv file with words to add
+        :param path_to_dict: path to a dictionary file in json
         """
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path_to_update, 'r', encoding='utf-8') as f, open(path_to_dict, encoding='utf-8') as f1:
+            lemmadict = json.loads(f1.read())
             for line in f:
                 res = re.search('(.+)\t(.+)\n', line)
                 if res:
                     lemma = res.group(1)
                     forms = set(res.group(2).lower().split(','))
                     for form in forms:
-                        if form in self.lemmadict.keys():
-                            self.lemmadict[form] += (lemma,)
+                        if form in lemmadict.keys():
+                            lemmadict[form] += (lemma,)
                         else:
-                            self.lemmadict[form] = (lemma,)
-        with open(".\\dicts\\forms.json", "w", encoding = "utf-8") as f1:
-            json.dump(self.lemmadict, f1, sort_keys = True, ensure_ascii = False)
+                            lemmadict[form] = (lemma,)
+        with open("forms.json", "w", encoding = "utf-8") as f1:
+            json.dump(lemmadict, f1, sort_keys = True, ensure_ascii = False)
+
+    @staticmethod
+    def predict_lemmas(file1, file2, unlemmatizedCounts, threshold=0):
+        """
+        Predicts lemmas for unlemmatized words.
+        :param file1: path to file to write unlemmatized word, the closest dictionary form and predicted lemma(s)
+        :param file2: path to file to write unlemmatized words with their counts
+        :param unlemmatizedCounts: a dict with unlemmatized words and their counts
+        :param threshold: minimal frequency of unlemmatized word
+        :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
+        """
+        edits = Edits(unlemmatizedCounts, threshold)
+        totalProposed = edits.proposed
+        with open(file1, 'w', encoding= 'utf-8') as f1, open(file2, 'w', encoding='utf-8') as f2:
+            for entry in sorted(totalProposed):
+                f1.write('%s\t%s\t%s\n' % (entry[0], entry[1], entry[2]))
+            for word in sorted(unlemmatizedCounts, key=unlemmatizedCounts.get):
+                f2.write('%s\t%s\n' % (word, unlemmatizedCounts[word]))
+        return totalProposed
+
+    @staticmethod
+    def process_text(in_path, out_path):
+        """
+        Processes text in a file
+        :param in_path: path to txt file
+        :param out_path: path to file with lemmatized text
+        """
+        with open(in_path, 'r', encoding='utf-8') as f, open(out_path, 'w', encoding='utf-8') as outfile:
+            unlemmatized = []
+            for line in f:
+                lem = Lemmatizer(line)
+                unlemmatized += lem.unlemmatized
+                outfile.write(lem.lemmaText + '\n')
+        return Counter(unlemmatized)
+
+    @staticmethod
+    def process_files(path):
+        """
+        Lemmatizes texts from all the files in a given directory and puts lemmatized texts in a new folder.
+        Writes proposed lemmas for unknown words into a file.
+        Counts average recall.
+        :param path: path to files
+        :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
+        """
+        totalUnlemmatized = Counter()
+        os.makedirs(path + "\\lemmatized", exist_ok=True)
+        files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
+        for file in files:
+            print('Processing %s' % (file))
+            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '\\lemmatized\\lem_' + file)
+            totalUnlemmatized += fileUnlemmatized
+        return totalUnlemmatized
+
+
+# todo add function for updating word and lemma probs!
 
 
 class Edits():
@@ -161,6 +225,7 @@ class Edits():
 
     def correct(self, word):
         candidates = self.known(self.edits1(word)) or self.known_edits2(word)
+        candidates += word
         candidates = [c for c in candidates if c[0] in self.vowels and word[0] in self.vowels \
                       or word[0] in self.consonants and word[0] == c[0]]
         if len(candidates) != 0:
