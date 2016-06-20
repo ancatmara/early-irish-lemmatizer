@@ -51,8 +51,27 @@ def process_text(in_path, out_path):
     #predict_lemmas(totalUnlemmatized)
     return totalRecall
 
+def compute_accuracy():
+    """
+    :return: accuracy score
+    """
+    with open("50_gold_lem.txt", "r", encoding="utf-8") as gold, open("50_test_result.txt", "r", encoding="utf-8") as processed:
+        correct = 0
+        total = 0
+        for line1, line2 in zip(gold, processed):
+            for word1, word2 in zip(line1.split(), line2.split()):
+                total +=1
+                if word1.strip() == word2.strip():
+                    correct +=1
+        print(correct)
+        print(total)
+        accuracy = correct / total
+    return(accuracy)
+
+
 if __name__ == '__main__':
     # proposed = process_files('C:\\Users\\ahten_000\\Dropbox\\Библиотека\\Вышка\\OldIrish\\texts\\processed')
     # pp(sorted(proposed)[:25])
-    process_files('C:\\Users\\ahten_000\\Dropbox\\Библиотека\\Вышка\\OldIrish\\texts\\processed')
+    process_text('C:\\Users\\ahten_000\\Dropbox\\Библиотека\\Вышка\\OldIrish\\50_gold_test.txt', "50_test_result.txt")
+    print(compute_accuracy())
 

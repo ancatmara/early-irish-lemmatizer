@@ -12,7 +12,7 @@ class Lemmatizer():
                  'hí': 'í', 'ho': 'o', 'hó': 'ó', 'hu': 'u', 'hú': 'ú', 'n-': '', 'h-': '', 'ss': 's', 'ts': 's',
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': '', 'l-': '', 'mh': 'm', 'r-': '',
-                 's-': ''}
+                 's-': '', 'cc': 'c'}
 
     with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
         open("lemma_probs.json", encoding="utf-8") as f2:
@@ -23,7 +23,7 @@ class Lemmatizer():
     def __init__(self, text):
         self.text, self.words = self.preprocess(text)
         self.lemmaText, self.unlemmatized, self.cnt = self.make_lemmatized_text()
-        self.accuracy = self.metrics()
+        self.recall = self.compute_recall()
         self.nr_tokens = len(self.words)
         self.nr_unique = len(set(self.words))
 
@@ -82,8 +82,7 @@ class Lemmatizer():
         for word in self.words:
             res = self.lemmatize(word)
             if res[-1] is None:
-                self.lemmaText += res[0] + ' '
-                self.unlemmatized.append(res[0])
+                self.unknown_words(res[0])
             else:
                 self.cnt += 1
                 if len(res[-1]) == 1:
@@ -94,10 +93,24 @@ class Lemmatizer():
                         bestLemma = max(candidates, key = Lemmatizer.lemmaModel.get)
                         self.lemmaText += bestLemma + ' '
                     except TypeError:
-                        self.lemmaText += word + ' '
+                        self.lemmaText += res[-1][0] + ' '
         return self.lemmaText, self.unlemmatized, self.cnt
 
-    def metrics(self):
+    def unknown_words(self, word, method='predict'):
+        if method == 'baseline':
+            self.lemmaText += self.demutate(word) + ' '
+        if method == 'predict':
+            closest = Edits.correct(Lemmatizer.demutate(word))
+            if closest is not None:
+                predictedLemma = max(Lemmatizer.lemmadict[closest], key=Lemmatizer.lemmaModel.get)
+                print(word + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
+                self.lemmaText += predictedLemma + ' '
+            else:
+                self.lemmaText += self.demutate(word) + ' '
+        self.unlemmatized.append(self.demutate(word))
+
+
+    def compute_recall(self):
         """
         :return: recall score
         """
@@ -210,24 +223,27 @@ class Edits():
                 self.proposed.append(entry)
         return self.proposed
 
-    def edits1(self, word):
+    @staticmethod
+    def edits1(word):
        splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
        deletes = [a + b[1:] for a, b in splits if b]
        transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
-       replaces = [a + c + b[1:] for a, b in splits for c in self.alphabet if b]
-       inserts = [a + c + b for a, b in splits for c in self.alphabet]
+       replaces = [a + c + b[1:] for a, b in splits for c in Edits.alphabet if b]
+       inserts = [a + c + b for a, b in splits for c in Edits.alphabet]
        return set(deletes + transposes + replaces + inserts)
 
-    def known_edits2(self, word):
-        return set(e2 for e1 in self.edits1(word) for e2 in self.edits1(e1) if e2 in Lemmatizer.wordModel.keys())
+    @staticmethod
+    def known_edits2(word):
+        return set(e2 for e1 in Edits.edits1(word) for e2 in Edits.edits1(e1) if e2 in Lemmatizer.wordModel.keys())
 
-    def known(self, words): return set(w for w in words if w in Lemmatizer.wordModel.keys())
+    @staticmethod
+    def known(words): return set(w for w in words if w in Lemmatizer.wordModel.keys())
 
-    def correct(self, word):
-        candidates = self.known(self.edits1(word)) or self.known_edits2(word)
-        candidates += word
-        candidates = [c for c in candidates if c[0] in self.vowels and word[0] in self.vowels \
-                      or word[0] in self.consonants and word[0] == c[0]]
+    @staticmethod
+    def correct(word):
+        candidates = Edits.known(Edits.edits1(word)) or Edits.known_edits2(word)
+        candidates = [c for c in candidates if c[0] in Edits.vowels and word[0] in Edits.vowels \
+                      or word[0] in Edits.consonants and word[0] == c[0]]
         if len(candidates) != 0:
             corr = max(candidates, key = Lemmatizer.wordModel.get)
         else:
