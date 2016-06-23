@@ -12,7 +12,7 @@ class Lemmatizer():
                  'hí': 'í', 'ho': 'o', 'hó': 'ó', 'hu': 'u', 'hú': 'ú', 'n-': '', 'h-': '', 'ss': 's', 'ts': 's',
                  'n': 'e', 'né': 'é', 'na': 'a', 'ná': 'á', 'ni': 'i', 'ní': 'í', 'no': 'o', 'nó': 'ó', 'nu': 'u',
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': '', 'l-': '', 'mh': 'm', 'r-': '',
-                 's-': '', 'cc': 'c'}
+                 's-': '', 'cc': 'c', 'mh\'': ''}
 
     with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
         open("lemma_probs.json", encoding="utf-8") as f2:
@@ -102,9 +102,12 @@ class Lemmatizer():
         if method == 'predict':
             closest = Edits.correct(Lemmatizer.demutate(word))
             if closest is not None:
-                predictedLemma = max(Lemmatizer.lemmadict[closest], key=Lemmatizer.lemmaModel.get)
-                print(word + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
-                self.lemmaText += predictedLemma + ' '
+                try:
+                    predictedLemma = max(Lemmatizer.lemmadict[closest], key=Lemmatizer.lemmaModel.get)
+                    # print(word + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
+                    self.lemmaText += predictedLemma + ' '
+                except TypeError:
+                        self.lemmaText += Lemmatizer.lemmadict[closest][0] + ' '
             else:
                 self.lemmaText += self.demutate(word) + ' '
         self.unlemmatized.append(self.demutate(word))
