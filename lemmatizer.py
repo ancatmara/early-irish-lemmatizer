@@ -14,8 +14,8 @@ class Lemmatizer():
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': '', 'l-': '', 'mh': 'm', 'r-': '',
                  's-': '', 'cc': 'c', 'mh\'': ''}
 
-    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
-        open("lemma_probs.json", encoding="utf-8") as f2:
+    with open("./dicts/forms.json", encoding='utf-8') as f, open("./dicts/word_probs.json", encoding="utf-8") as f1,\
+        open("./dicts/lemma_probs.json", encoding="utf-8") as f2:
         lemmadict = json.loads(f.read())
         wordModel = json.loads(f1.read())
         lemmaModel = json.loads(f2.read())
@@ -190,11 +190,11 @@ class Lemmatizer():
         :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
         """
         totalUnlemmatized = Counter()
-        os.makedirs(path + "\\lemmatized", exist_ok=True)
+        os.makedirs(path + "/lemmatized", exist_ok=True)
         files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
         for file in files:
             print('Processing %s' % (file))
-            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '\\lemmatized\\lem_' + file)
+            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '/lemmatized/lem_' + file)
             totalUnlemmatized += fileUnlemmatized
         return totalUnlemmatized
 
