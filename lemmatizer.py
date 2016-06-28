@@ -14,18 +14,19 @@ class Lemmatizer():
                  'nú': 'ú', 'm-': '', 't-': '', 't\'': ' ', 'm\'': '', 'd\'': '', 'l-': '', 'mh': 'm', 'r-': '',
                  's-': '', 'cc': 'c', 'mh\'': ''}
 
-    with open("./dicts/forms.json", encoding='utf-8') as f, open("./dicts/word_probs.json", encoding="utf-8") as f1,\
-        open("./dicts/lemma_probs.json", encoding="utf-8") as f2:
+    with open("forms.json", encoding='utf-8') as f, open("word_probs.json", encoding="utf-8") as f1,\
+        open("lemma_probs.json", encoding="utf-8") as f2:
         lemmadict = json.loads(f.read())
         wordModel = json.loads(f1.read())
         lemmaModel = json.loads(f2.read())
 
-    def __init__(self, text):
+    def __init__(self, text, method = 'predict'):
         self.text, self.words = self.preprocess(text)
-        self.lemmaText, self.unlemmatized, self.cnt = self.make_lemmatized_text()
+        self.lemmaText, self.nondict, self.cnt = self.make_lemmatized_text()
         self.recall = self.compute_recall()
         self.nr_tokens = len(self.words)
         self.nr_unique = len(set(self.words))
+        self.method = method
 
     def preprocess(self, text):
         """
@@ -77,7 +78,7 @@ class Lemmatizer():
                 {(word, lemma) : count}
         """
         self.lemmaText = ''
-        self.unlemmatized = []
+        self.nondict = []
         self.cnt = 0
         for word in self.words:
             res = self.lemmatize(word)
@@ -94,23 +95,23 @@ class Lemmatizer():
                         self.lemmaText += bestLemma + ' '
                     except TypeError:
                         self.lemmaText += res[-1][0] + ' '
-        return self.lemmaText, self.unlemmatized, self.cnt
+        return self.lemmaText, self.nondict, self.cnt
 
-    def unknown_words(self, word, method='predict'):
-        if method == 'baseline':
+    def unknown_words(self, word):
+        if self.method == 'baseline':
             self.lemmaText += self.demutate(word) + ' '
-        if method == 'predict':
+        if self.method == 'predict':
             closest = Edits.correct(Lemmatizer.demutate(word))
             if closest is not None:
                 try:
                     predictedLemma = max(Lemmatizer.lemmadict[closest], key=Lemmatizer.lemmaModel.get)
-                    # print(word + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
+                    print(word + ' ' + closest + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
                     self.lemmaText += predictedLemma + ' '
                 except TypeError:
                         self.lemmaText += Lemmatizer.lemmadict[closest][0] + ' '
             else:
                 self.lemmaText += self.demutate(word) + ' '
-        self.unlemmatized.append(self.demutate(word))
+        self.nondict.append(self.demutate(word))
 
 
     def compute_recall(self):
@@ -142,7 +143,7 @@ class Lemmatizer():
                             lemmadict[form] += (lemma,)
                         else:
                             lemmadict[form] = (lemma,)
-        with open("./dicts/forms.json", "w", encoding = "utf-8") as f1:
+        with open("forms.json", "w", encoding = "utf-8") as f1:
             json.dump(lemmadict, f1, sort_keys = True, ensure_ascii = False)
 
     @staticmethod
@@ -175,7 +176,7 @@ class Lemmatizer():
             unlemmatized = []
             for line in f:
                 lem = Lemmatizer(line)
-                unlemmatized += lem.unlemmatized
+                unlemmatized += lem.nondict
                 outfile.write(lem.lemmaText + '\n')
         return Counter(unlemmatized)
 
@@ -189,11 +190,11 @@ class Lemmatizer():
         :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
         """
         totalUnlemmatized = Counter()
-        os.makedirs(path + "/lemmatized", exist_ok=True)
+        os.makedirs(path + "\\lemmatized", exist_ok=True)
         files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
         for file in files:
             print('Processing %s' % (file))
-            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '/lemmatized/lem_' + file)
+            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '\\lemmatized\\lem_' + file)
             totalUnlemmatized += fileUnlemmatized
         return totalUnlemmatized
 
