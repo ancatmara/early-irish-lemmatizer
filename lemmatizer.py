@@ -142,8 +142,49 @@ class Lemmatizer():
                             lemmadict[form] += (lemma,)
                         else:
                             lemmadict[form] = (lemma,)
-        with open("forms.json", "w", encoding = "utf-8") as f1:
-            json.dump(lemmadict, f1, sort_keys = True, ensure_ascii = False)
+        with open("./dicts/forms.json", "w", encoding="utf-8") as f1:
+            json.dump(lemmadict, f1, sort_keys=True, ensure_ascii=False)
+        Lemmatizer.update_wordprobs()
+        Lemmatizer.update_lemmaprobs()
+
+    @staticmethod
+    def update_wordprobs():
+        with open("./dicts/forms.json", encoding='utf-8') as f, open("./dicts/word_probs.json", encoding="utf-8") as f1:
+            lemmadict = json.loads(f.read())
+            wordModel = json.loads(f1.read())
+        for k in lemmadict:
+            if k not in wordModel:
+                wordModel[k.strip(" ")] = 1
+        wordModel = {k:wordModel[k] for k in wordModel if len(k) != 0}
+        with open("./dicts/word_probs.json", "w", encoding = "utf-8") as f2:
+            json.dump(wordModel, f2, sort_keys=True, ensure_ascii=False)
+        return wordModel
+
+    @staticmethod
+    def update_lemmaprobs():
+        with open("./dicts/forms.json", encoding='utf-8') as f, open("./dicts/word_probs.json", encoding="utf-8") as f1,\
+        open("./dicts/lemma_probs.json", encoding="utf-8") as f2:
+            lemmadict = json.loads(f.read())
+            wordModel = json.loads(f1.read())
+            lemmaModel = json.loads(f2.read())
+        for k, v in lemmadict.items():
+            if len(v) > 1:
+                for element in v:
+                    if element in lemmaModel:
+                        if k in wordModel:
+                            lemmaModel[element] += wordModel[k]
+                    else:
+                        lemmaModel[element] = 1
+            else:
+                if v[0] in lemmaModel:
+                    if k in wordModel:
+                        lemmaModel[v[0]] += wordModel[k]
+                else:
+                    lemmaModel[v[0]] = 1
+        lemmaProbs = {k:lemmaModel[k] for k in lemmaModel if len(k) != 0}
+        with open("./dicts/lemma_probs.json", "w", encoding="utf-8") as f2:
+            json.dump(lemmaProbs, f2, sort_keys=True, ensure_ascii=False)
+        return lemmaModel
 
     @staticmethod
     def predict_lemmas(file1, file2, unlemmatizedCounts, threshold=0):
@@ -196,9 +237,6 @@ class Lemmatizer():
             fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '/lemmatized/lem_' + file)
             totalUnlemmatized += fileUnlemmatized
         return totalUnlemmatized
-
-
-# todo add function for updating word and lemma probs!
 
 
 class Edits():
