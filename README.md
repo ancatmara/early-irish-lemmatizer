@@ -10,6 +10,7 @@ The lemmatizer is able to predict lemmas for OOV-words and shows the average acc
 *Lemmatizes the text from a file and writes the output into another file; returns a dictionary with non-dictionary forms and their counts*
 
 ```python
+from lemmatizer import *
 nondict = Lemmatizer.process_text(infile, outfile)
 ```
 
@@ -21,7 +22,7 @@ nondict = Lemmatizer.process_text(infile, outfile)
 nondict = Lemmatizer.process_files(path)
 ```
 
-**Lemmatize standard input**
+**Lemmatize a string*
 
 *Initializes the Lemmatizer class for a string*
 
