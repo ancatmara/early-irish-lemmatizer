@@ -22,7 +22,7 @@ class Lemmatizer():
 
     def __init__(self, text, method = 'predict'):
         self.text, self.words = self.preprocess(text)
-        self.lemmaText, self.nondict, self.cnt = self.make_lemmatized_text()
+        self.lemmaText, self.nondict, self.cnt = self.make_lemmatized_text(method)
         self.recall = self.compute_recall()
         self.nr_tokens = len(self.words)
         self.nr_unique = len(set(self.words))
@@ -71,7 +71,7 @@ class Lemmatizer():
             res = (word, None)
         return res
 
-    def make_lemmatized_text(self):
+    def make_lemmatized_text(self, method):
         """
         Makes a lemmatized text and counts (word, lemma) frequency
         :return: a lemmatized text (str),
@@ -83,7 +83,7 @@ class Lemmatizer():
         for word in self.words:
             res = self.lemmatize(word)
             if res[-1] is None:
-                self.unknown_words(res[0])
+                self.unknown_words(res[0], method)
             else:
                 self.cnt += 1
                 if len(res[-1]) == 1:
@@ -97,15 +97,14 @@ class Lemmatizer():
                         self.lemmaText += res[-1][0] + ' '
         return self.lemmaText, self.nondict, self.cnt
 
-    def unknown_words(self, word):
-        if self.method == 'baseline':
+    def unknown_words(self, word, method):
+        if method == 'baseline':
             self.lemmaText += self.demutate(word) + ' '
-        if self.method == 'predict':
+        if method == 'predict':
             closest = Edits.correct(Lemmatizer.demutate(word))
             if closest is not None:
                 try:
                     predictedLemma = max(Lemmatizer.lemmadict[closest], key=Lemmatizer.lemmaModel.get)
-                    print(word + ' ' + closest + ' ' + str(Lemmatizer.lemmadict[closest]) + ' ' + predictedLemma)
                     self.lemmaText += predictedLemma + ' '
                 except TypeError:
                         self.lemmaText += Lemmatizer.lemmadict[closest][0] + ' '
