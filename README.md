@@ -71,4 +71,4 @@ Lemmatizer.update_dict(path_to_dict, path_to_update)
 
 ### Evaluation
 
-There is a gold standard of 50 random sentences from the test subcorpus available for evaluation (50\_gold\_test.txt) and a test script that computes accuracy of the lemmatizer's performance with default options (test\_lemmatizer.py). 
+There is a test set of 50 random sentences (50\_gold\_test.txt) and a manually lemmatized gold standard (50\_gold\_lem.txt) available for evaluation.
