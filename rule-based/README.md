@@ -1,6 +1,6 @@
 ## Old Irish Lemmatizer
 
-A dictionary-based lemmatizer for Old, Middle and Early Modern Irish developed in the [School of Linguistics](https://ling.hse.ru/en/), NRU HSE.
+A lexicon-based lemmatizer for Old, Middle and Early Modern Irish developed in the [School of Linguistics](https://ling.hse.ru/en/), NRU HSE.
 The lemmatizer is able to predict lemmas for OOV-words and shows the average accuracy of 65,71 %. 
 
 ### Usage 
