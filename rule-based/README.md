@@ -1,8 +1,32 @@
-## Early Irish Lemmatizer
+# Early Irish Lemmatizer
 
 A lexicon-based lemmatizer for Early Irish showing the average accuracy of 65,71 % (known + unknown words). 
 
-### Usage 
+## Usage
+
+### From command line
+The lemmatizer takes two positional arguments: input type and input itself. For type, choose one of the following:
+* S is for standard input. In this case, the next argument will be regarded as an input text, lemmatized and printed to the command line.
+* F is for files/folders. In this case, the next argument will be regarded as a path to an input file/folder. This file/the files in this folder will be lemmatized, and the results will be saved in (a) separate file(s).
+
+Lemmatizing a word or phrase:
+```
+python lemmatizer.py S "Is acher in gaíth in-nocht, fu-fúasna fairggae findfholt"
+is aicher in gáeth innocht fo-fúasna fairrge findfholt
+```
+
+Lemmatizing a file:
+```
+python lemmatizer.py F input.txt
+```
+
+Lemmatizing files in a folder:
+```
+python lemmatizer.py F input_files
+```
+
+
+### As a Python library
 
 **Lemmatize a text**
 
@@ -68,6 +92,6 @@ Lemmatizer.update_dict(path_to_dict, path_to_update)
 ```
 
 
-### Evaluation
+## Evaluation
 
 There is a test set of 50 random sentences (50\_gold\_test.txt) and a manually lemmatized gold standard (50\_gold\_lem.txt) available for evaluation.
