@@ -34,12 +34,12 @@ python lemmatizer.py F input_files
 
 ```python
 from lemmatizer import *
-nondict = Lemmatizer.process_text(infile, outfile)
+nondict = Lemmatizer.process_text(path)
 ```
 
 **Lemmatize all texts in the directory**
 
-*Lemmatizes the text from all txt files in the directory and writes the output into the "lemmatized" folder; returns a dictionary with unknown forms and their counts*
+*Lemmatizes the text from all txt files in the directory and writes the output into separate files; returns a dictionary with unknown forms and their counts*
 
 ```python
 nondict = Lemmatizer.process_files(path)
