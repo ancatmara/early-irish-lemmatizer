@@ -1,4 +1,5 @@
 import json
+import argparse
 import re
 import os
 from collections import Counter
@@ -206,13 +207,13 @@ class Lemmatizer():
         return totalProposed
 
     @staticmethod
-    def process_text(in_path, out_path):
+    def process_text(in_path):
         """
         Processes text in a file
         :param in_path: path to txt file
-        :param out_path: path to file with lemmatized text
         """
-        with open(in_path, 'r', encoding='utf-8') as f, open(out_path, 'w', encoding='utf-8') as outfile:
+        path, filename = os.path.split(in_path)
+        with open(in_path, 'r', encoding='utf-8') as f, open(os.path.join(path, "lem_" + filename), 'w', encoding='utf-8') as outfile:
             unlemmatized = []
             for line in f:
                 lem = Lemmatizer(line)
@@ -230,11 +231,10 @@ class Lemmatizer():
         :return: a list of (OOV form, closest form from lemmadict, lemma) tuples
         """
         totalUnlemmatized = Counter()
-        os.makedirs(path + "/lemmatized", exist_ok=True)
         files = [name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
         for file in files:
             print('Processing %s' % (file))
-            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file), path + '/lemmatized/lem_' + file)
+            fileUnlemmatized = Lemmatizer.process_text(os.path.join(path, file))
             totalUnlemmatized += fileUnlemmatized
         return totalUnlemmatized
 
@@ -290,3 +290,23 @@ class Edits():
         else:
             corr = None
         return corr
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("type", type=str, help="Specify input type: F for files/folders and S for standard input")
+    parser.add_argument("input", type=str, help="Enter input text or the path to an input file/folder")
+    args = parser.parse_args()
+    if args.type == "F":
+        if os.path.isfile(args.input):
+            Lemmatizer.process_text(args.input)
+        elif os.path.isdir(args.input):
+            Lemmatizer.process_files(args.input)
+        else:
+            print("Incorrect path")
+    elif args.type == "S":
+        print(Lemmatizer(args.input).lemmaText)
+    else:
+        print("Incorrect input type")
+
+if __name__ == '__main__':
+    main()
