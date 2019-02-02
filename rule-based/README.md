@@ -58,13 +58,13 @@ lemmatizedString = lem.lemmaText
 ```
 
 It has the following attributes:
-* `lem.text` -- input string cleaned from punctuation and non-word symbols
-* `lem.words` -- list of tokens
-* `lem.lemmaText` -- lemmatized string 
-* `lem.nondict` -- list of unknown words
-* `lem.recall` -- shows the percentage of known forms in the string
-* `lem.nr_tokens` -- number of tokens in a string
-* `lem.nr_unique` -- number of unique tokens in a string
+* `lem.text` – input string cleaned from punctuation and non-word symbols
+* `lem.words` – list of tokens
+* `lem.lemmaText` – lemmatized string 
+* `lem.nondict` – list of unknown words
+* `lem.recall` – shows the percentage of known forms in the string
+* `lem.nr_tokens` – number of tokens in a string
+* `lem.nr_unique` – number of unique tokens in a string
 
 **Demutate a word**
 
@@ -94,4 +94,9 @@ Lemmatizer.update_dict(path_to_dict, path_to_update)
 
 ## Evaluation
 
-There is a test set of 50 random sentences (50\_gold\_test.txt) and a manually lemmatized gold standard (50\_gold\_lem.txt) available for evaluation.
+There is a test set of 50 random sentences (50\_gold\_test.txt) and a manually lemmatized 
+
+
+
+
+(50\_gold\_lem.txt) available for evaluation.
